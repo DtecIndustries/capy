@@ -75,7 +75,7 @@ export function toListItem(library: Library, doc: Doc) {
     createdDateTime: doc.created_at,
     lastModifiedDateTime: doc.lastChangedAt,
     createdBy: identity(library, doc.created_by),
-    lastModifiedBy: identity(library, latest.modified_by),
+    lastModifiedBy: identity(library, doc.lastChangedBy),
     webUrl: webUrl(library, doc),
     fields: {
       Title: doc.title,

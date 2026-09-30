@@ -12,6 +12,10 @@ Backend: http://localhost:3737
 Health check: http://localhost:3737/health  
 MCP server: http://localhost:3737/mcp
 
+On startup the backend loads the org directory and taxonomy from `mocks/seed`. It then polls the mock SharePoint (:4020) and mock mail (:4010) every 10 seconds (`INGEST_INTERVAL_MS`) and writes what changed to the ledger. See `mocks/*/README.md` for the live demo commands.
+
+> The ledger's hash format changed with the connectors. If you ran an earlier version, reset the database once with `docker compose down -v`.
+
 ## Stop
 
 ```bash

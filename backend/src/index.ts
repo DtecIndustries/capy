@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import { migrate } from './db/migrate.js'
+import { startIngestion } from './ingestion/worker.js'
 import { registerMcp } from './mcp/handler.js'
 
 const app = Fastify({ logger: true })
@@ -14,6 +15,7 @@ try {
   await migrate()
   await registerMcp(app)
   await app.listen({ port, host: '0.0.0.0' })
+  await startIngestion(app.log)
 } catch (err) {
   app.log.error(err)
   process.exit(1)

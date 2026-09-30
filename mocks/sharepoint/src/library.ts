@@ -81,6 +81,8 @@ export interface Doc extends Omit<DocumentMeta, 'versions'> {
   // Global change counter; delta queries return documents changed after a given value.
   changeSeq: number
   lastChangedAt: string
+  // Who made the last change of any kind (edit, approval, owner change).
+  lastChangedBy: string
 }
 
 export class LibraryError extends Error {
@@ -105,11 +107,13 @@ function toVersion(meta: VersionMeta, raw: string): Version {
 
 const now = () => new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
 
-function lastEventAt(versions: VersionMeta[]): string {
+function lastEvent(versions: VersionMeta[]): { at: string; by: string } {
   return versions
-    .flatMap((v) => [v.modified_at, v.approval.at])
-    .filter((t): t is string => t !== null)
-    .sort()
+    .flatMap((v) => [
+      { at: v.modified_at, by: v.modified_by },
+      ...(v.approval.at && v.approval.by ? [{ at: v.approval.at, by: v.approval.by }] : []),
+    ])
+    .sort((a, b) => a.at.localeCompare(b.at))
     .pop()!
 }
 
@@ -171,7 +175,8 @@ export class Library {
         }
       }
     })
-    this.docs.set(meta.id, { ...meta, versions, changeSeq: ++this.seq, lastChangedAt: lastEventAt(versions) })
+    const last = lastEvent(versions)
+    this.docs.set(meta.id, { ...meta, versions, changeSeq: ++this.seq, lastChangedAt: last.at, lastChangedBy: last.by })
   }
 
   upload(input: {
@@ -210,6 +215,7 @@ export class Library {
       filler: { labels: [], check_out_status: 'none', last_viewed_by: [], comments: [] },
       changeSeq: ++this.seq,
       lastChangedAt: at,
+      lastChangedBy: input.as,
     }
     this.docs.set(id, doc)
     return doc
@@ -225,7 +231,7 @@ export class Library {
     doc.versions.push(
       toVersion({ version, modified_by: input.as, modified_at: at, approval: { status: 'pending', by: null, at: null } }, input.content),
     )
-    return this.touch(doc, at)
+    return this.touch(doc, at, input.as)
   }
 
   approve(id: string, input: { as: string; status: 'approved' | 'rejected' }): Doc {
@@ -237,7 +243,7 @@ export class Library {
       throw new LibraryError(`${id}@${current.version} is already approved`, 409)
     }
     current.approval = { status: input.status, by: input.as, at }
-    return this.touch(doc, at)
+    return this.touch(doc, at, input.as)
   }
 
   setOwner(id: string, input: { as: string; owner: string }): Doc {
@@ -246,12 +252,13 @@ export class Library {
     this.requireActive(input.as, at)
     this.requireActive(input.owner, at)
     doc.owner = input.owner
-    return this.touch(doc, at)
+    return this.touch(doc, at, input.as)
   }
 
-  private touch(doc: Doc, at: string): Doc {
+  private touch(doc: Doc, at: string, by: string): Doc {
     doc.changeSeq = ++this.seq
     doc.lastChangedAt = at
+    doc.lastChangedBy = by
     return doc
   }
 
@@ -299,7 +306,7 @@ export function loadLibrary(metaPath: string, directory: Directory): Library {
   const library = new Library(meta.site, meta.drives, directory)
 
   // Seed in chronological order, so the initial delta reads like the library's history.
-  const documents = [...meta.documents].sort((a, b) => lastEventAt(a.versions).localeCompare(lastEventAt(b.versions)))
+  const documents = [...meta.documents].sort((a, b) => lastEvent(a.versions).at.localeCompare(lastEvent(b.versions).at))
 
   for (const doc of documents) {
     const driveName = meta.drives.find((d) => d.id === doc.drive)?.name ?? doc.drive

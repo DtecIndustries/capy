@@ -1,5 +1,5 @@
-import { createHash } from 'crypto'
 import { sql } from '../db/client.js'
+import { hashEvent } from './hash.js'
 import type { EventInput } from './types.js'
 
 interface VerifyResult {
@@ -11,10 +11,10 @@ export async function verifyChain(): Promise<VerifyResult> {
   const events = await sql<Array<{
     id: string; ts: Date; actor_id: string; type: string;
     subject_type: string; subject_id: string; domain_id: string | null;
-    client_id: string | null; country: string | null; payload: unknown;
+    client_id: string | null; country: string | null; payload: Record<string, unknown>;
     prev_hash: string | null; hash: string;
   }>>`
-    SELECT * FROM event ORDER BY ts ASC, id ASC
+    SELECT * FROM event ORDER BY seq ASC
   `
 
   let prevHash: string | null = null
@@ -28,13 +28,10 @@ export async function verifyChain(): Promise<VerifyResult> {
       domain_id: event.domain_id ?? undefined,
       client_id: event.client_id ?? undefined,
       country: event.country ?? undefined,
-      payload: event.payload as Record<string, unknown>,
+      payload: event.payload,
     }
 
-    const content: string = JSON.stringify({ prevHash, id: event.id, ts: event.ts, ...input })
-    const expected: string = createHash('sha256').update(content).digest('hex')
-
-    if (expected !== event.hash) {
+    if (event.prev_hash !== prevHash || hashEvent(prevHash, event.id, event.ts, input) !== event.hash) {
       return { valid: false, brokenAt: event.id }
     }
 

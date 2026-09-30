@@ -110,6 +110,21 @@ CREATE TABLE IF NOT EXISTS event (
   hash         TEXT NOT NULL
 );
 
+-- Chain order. ts alone is not unique (several events per millisecond).
+ALTER TABLE event ADD COLUMN IF NOT EXISTS seq BIGSERIAL UNIQUE;
+
+-- Connector support: identity mapping (sources identify people by email), document
+-- ownership and country as given by the source, and each connector's delta position.
+ALTER TABLE person ADD COLUMN IF NOT EXISTS email TEXT UNIQUE;
+ALTER TABLE document ADD COLUMN IF NOT EXISTS owner_id TEXT REFERENCES person(id);
+ALTER TABLE document ADD COLUMN IF NOT EXISTS country_hint TEXT;
+
+CREATE TABLE IF NOT EXISTS connector_state (
+  id         TEXT PRIMARY KEY,
+  delta_link TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Housekeeping
 CREATE TABLE IF NOT EXISTS housekeeping_task (
   id               TEXT PRIMARY KEY,

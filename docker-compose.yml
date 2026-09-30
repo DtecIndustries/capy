@@ -25,6 +25,9 @@ services:
       MAIL_GRAPH_TOKEN: ${MAIL_MOCK_TOKEN:-dev-mail-token}
       SHAREPOINT_GRAPH_URL: http://sharepoint-mock:4020/v1.0
       SHAREPOINT_GRAPH_TOKEN: ${SHAREPOINT_MOCK_TOKEN:-dev-sp-token}
+      SEED_DIR: /app/seed
+    volumes:
+      - ./mocks/seed:/app/seed:ro
     depends_on:
       db:
         condition: service_healthy

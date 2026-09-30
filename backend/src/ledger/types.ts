@@ -3,6 +3,7 @@ export type EventType =
   | 'source_edited'
   | 'source_approved'
   | 'source_superseded'
+  | 'owner_changed'
   | 'question_answered'
   | 'conflict_detected'
   | 'ruling_made'

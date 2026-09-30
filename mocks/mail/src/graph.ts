@@ -41,12 +41,16 @@ export function toGraphMessage(mailbox: Mailbox, mail: MailRecord, folder: Folde
   const recipients = (ids: string[]) => ids.map((id) => address(mailbox.person(id), id))
   const from = address(mailbox.person(mail.from), mail.from)
   const ancestors = mailbox.ancestors(mail)
-  const headers = ancestors.length
-    ? [
-        { name: 'In-Reply-To', value: internetMessageId(ancestors[ancestors.length - 1]) },
-        { name: 'References', value: ancestors.map(internetMessageId).join(' ') },
-      ]
-    : []
+  const headers = [
+    ...(ancestors.length
+      ? [
+          { name: 'In-Reply-To', value: internetMessageId(ancestors[ancestors.length - 1]) },
+          { name: 'References', value: ancestors.map(internetMessageId).join(' ') },
+        ]
+      : []),
+    // RFC 3834, as Exchange sets it on automatic replies.
+    ...(mail.auto_reply ? [{ name: 'Auto-Submitted', value: 'auto-replied' }] : []),
+  ]
 
   return {
     id: mail.id,

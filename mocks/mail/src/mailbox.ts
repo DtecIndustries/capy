@@ -28,6 +28,8 @@ export interface MailRecord {
   subject: string
   references: string[]
   is_reply_to: string | null
+  // Out-of-office and similar automatic replies.
+  auto_reply?: boolean
   body: string
   filler: {
     cc: string[]
