@@ -31,7 +31,7 @@ The design goal is a small system that is easy to demo and easy to explain: **on
 | 2 | **MCP server** | Exposes `trusted_docs`, `who_knows`, `get_provenance`, `health` | Same process as the backend, HTTP transport with a token |
 | 3 | **Web UI** | Lookup, provenance view, health board, capybara states, persona switcher | React + Vite |
 | 4 | **Database** | Events, documents, versions, people, teams, domains, client bindings | SQLite locally, Postgres if deployed |
-| 5 | **Mock SharePoint** | Watched folder of documents plus metadata; emits a change event on every file save | Folder watcher plus `sharepoint.meta.json` |
+| 5 | **Mock SharePoint** | Document libraries with version history and approval, served through Microsoft Graph–shaped drive delta endpoints the backend polls; a CLI for live edits and approvals | Fastify service (TypeScript), see `mocks/sharepoint/README.md` |
 | 6 | **Mock Mail** | Serves `mailbox.jsonl` through Microsoft Graph–shaped delta endpoints the backend polls; a `send-mail` command for live moments | Fastify service (TypeScript), see `mocks/mail/README.md` |
 | 7 | **LLM** | Tags documents and mails to app, domain and client; flags contradictions between sibling documents. Runs at ingestion only | Gemini on Vertex AI, or Claude |
 
@@ -83,11 +83,11 @@ capy-ledger/
 │   │   ├── taxonomy.json         # apps, domains, owner teams, domain links
 │   │   └── directory.json        # teams, clients, people, client bindings, leavers
 │   ├── sharepoint/
-│   │   ├── sharepoint.meta.json  # metadata per document version
-│   │   ├── watcher.py            # folder watcher: file save -> change event
-│   │   └── library/
-│   │       ├── Pay/Sick-leave/   # procedure v1, v2, client-specific, NL version...
-│   │       └── Pay/Year-end/
+│   │   ├── sharepoint.meta.json  # owner, country and approval per document version
+│   │   ├── library/              # current versions, one folder per library (Pay, Time, HR)
+│   │   ├── history/              # older versions: <doc-id>/<version>.md
+│   │   ├── live/                 # replacement content for live demo edits
+│   │   └── src/                  # Graph-shaped drive API + `sp` CLI
 │   ├── mail/
 │   │   ├── mailbox.jsonl         # one mail per line
 │   │   ├── live/                 # presets for live demo mails
@@ -168,7 +168,7 @@ capy-ledger/
 | Client-scoped access | `backend/app/access/`, `backend/tests/test_access_scope.py` |
 | MCP server | `backend/app/mcp/server.py` |
 | Capybara states | `frontend/src/assets/capybara/`, `TrustBadge.tsx` |
-| Live demo moments | `mocks/simulate.py`, `mocks/sharepoint/watcher.py`, `scripts/demo.md` |
+| Live demo moments | `mocks/mail/live/`, `mocks/sharepoint/live/` (with the `send-mail` and `sp` CLIs), `scripts/demo.md` |
 
 ### Conventions
 
@@ -453,7 +453,7 @@ Stretch: `record_ruling(conflict_id, decision)`, allowed only for the owning tea
 | Access control | **Built** |
 | MCP server and web UI | **Built** |
 | Ingestion worker and LLM tagging | **Built** (run against mock data, results hand-verified) |
-| SharePoint | **Mocked** (watched folder plus metadata, shaped like Microsoft Graph delta output) |
+| SharePoint | **Mocked** (document libraries with version history and approval, shaped like Microsoft Graph drive delta output) |
 | Mail | **Mocked** (mailbox feed shaped like Graph mail output) |
 | Org directory | **Mocked** (seed file) |
 | Real connectors (Microsoft Graph, Entra ID) | **Not built**; the connector contract is designed to accept them |

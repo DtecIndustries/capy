@@ -1,0 +1,351 @@
+{
+  "site": {
+    "id": "site-knowledge",
+    "name": "Knowledge Hub",
+    "url": "https://capydemo.sharepoint.example.test/sites/knowledge"
+  },
+  "drives": [
+    { "id": "drive-pay", "name": "Pay", "description": "Procedures, client addenda and notes of the Pay team" },
+    { "id": "drive-time", "name": "Time", "description": "Configuration guides and client notes of the Time team" },
+    { "id": "drive-hr", "name": "HR", "description": "Checklists and contract templates of the HR team" }
+  ],
+  "documents": [
+    {
+      "id": "doc-014",
+      "drive": "drive-pay",
+      "path": "Ziekte/Procedure gewaarborgd loon bedienden.md",
+      "title": "Procedure gewaarborgd loon bij ziekte (bedienden, BE)",
+      "document_type": "Procedure",
+      "owner": "jan.peeters",
+      "country_hint": "BE",
+      "created_by": "jan.peeters",
+      "created_at": "2025-03-10T08:30:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "jan.peeters",
+          "modified_at": "2025-03-10T08:30:00Z",
+          "approval": { "status": "approved", "by": "katrien.janssens", "at": "2025-03-12T14:10:00Z" }
+        },
+        {
+          "version": "2.0",
+          "modified_by": "sophie.dubois",
+          "modified_at": "2026-08-12T09:14:00Z",
+          "approval": { "status": "approved", "by": "katrien.janssens", "at": "2026-08-13T10:02:00Z" }
+        }
+      ],
+      "filler": {
+        "labels": ["Intern", "Payroll"],
+        "check_out_status": "none",
+        "last_viewed_by": ["anna.claes", "tom.maes", "lucas.jacobs"],
+        "comments": [{ "by": "anna.claes", "at": "2026-08-18T08:20:00Z", "text": "Geldt dit ook voor stagiairs?" }]
+      }
+    },
+    {
+      "id": "doc-015",
+      "drive": "drive-pay",
+      "path": "Klanten/Scheldemond/Kopie van Procedure gewaarborgd loon bedienden.md",
+      "title": "Kopie van Procedure gewaarborgd loon bij ziekte (bedienden, BE)",
+      "document_type": "Procedure",
+      "owner": "tom.maes",
+      "country_hint": "BE",
+      "created_by": "tom.maes",
+      "created_at": "2026-02-18T15:42:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "tom.maes",
+          "modified_at": "2026-02-18T15:42:00Z",
+          "approval": { "status": "pending", "by": null, "at": null }
+        }
+      ],
+      "filler": {
+        "labels": ["Intern"],
+        "check_out_status": "none",
+        "last_viewed_by": ["tom.maes"],
+        "comments": []
+      }
+    },
+    {
+      "id": "doc-021",
+      "drive": "drive-pay",
+      "path": "Klanten/Scheldemond/Addendum ziekte Scheldemond.md",
+      "title": "Addendum ziekte en gewaarborgd loon – Scheldemond Logistics",
+      "document_type": "Client addendum",
+      "owner": "sophie.dubois",
+      "country_hint": "BE",
+      "created_by": "sophie.dubois",
+      "created_at": "2026-08-14T13:25:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "sophie.dubois",
+          "modified_at": "2026-08-14T13:25:00Z",
+          "approval": { "status": "approved", "by": "katrien.janssens", "at": "2026-08-17T09:40:00Z" }
+        }
+      ],
+      "filler": {
+        "labels": ["Intern", "Klantspecifiek", "Payroll"],
+        "check_out_status": "none",
+        "last_viewed_by": ["anna.claes", "jan.peeters"],
+        "comments": []
+      }
+    },
+    {
+      "id": "doc-030",
+      "drive": "drive-pay",
+      "path": "Nederland/Loondoorbetaling bij ziekte NL.md",
+      "title": "Loondoorbetaling bij ziekte (Nederland)",
+      "document_type": "Procedure",
+      "owner": "lotte.vermeulen",
+      "country_hint": "NL",
+      "created_by": "lotte.vermeulen",
+      "created_at": "2025-11-05T10:00:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "lotte.vermeulen",
+          "modified_at": "2025-11-05T10:00:00Z",
+          "approval": { "status": "approved", "by": "katrien.janssens", "at": "2025-11-07T11:30:00Z" }
+        }
+      ],
+      "filler": {
+        "labels": ["Intern", "Payroll", "NL"],
+        "check_out_status": "none",
+        "last_viewed_by": ["tom.maes", "anna.claes"],
+        "comments": []
+      }
+    },
+    {
+      "id": "doc-040",
+      "drive": "drive-pay",
+      "path": "Eindejaar/Procedure eindejaarspremie en fiscale fiches.md",
+      "title": "Procedure eindejaarspremie en fiscale fiches (BE)",
+      "document_type": "Procedure",
+      "owner": "jan.peeters",
+      "country_hint": "BE",
+      "created_by": "jan.peeters",
+      "created_at": "2025-10-01T07:45:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "jan.peeters",
+          "modified_at": "2025-10-01T07:45:00Z",
+          "approval": { "status": "approved", "by": "katrien.janssens", "at": "2025-10-03T15:20:00Z" }
+        }
+      ],
+      "filler": {
+        "labels": ["Intern", "Payroll", "Eindejaar"],
+        "check_out_status": "none",
+        "last_viewed_by": ["sophie.dubois", "anna.claes"],
+        "comments": [{ "by": "sophie.dubois", "at": "2026-03-04T15:30:00Z", "text": "Afwijkende referteperiodes per klant staan in de klantaddenda, niet hier." }]
+      }
+    },
+    {
+      "id": "doc-041",
+      "drive": "drive-pay",
+      "path": "Klanten/Ardenne/Addendum eindejaar Ardenne Bakkerijen.md",
+      "title": "Addendum eindejaarspremie – Ardenne Bakkerijen (concept)",
+      "document_type": "Client addendum",
+      "owner": "sophie.dubois",
+      "country_hint": "BE",
+      "created_by": "sophie.dubois",
+      "created_at": "2026-06-10T14:05:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "sophie.dubois",
+          "modified_at": "2026-06-10T14:05:00Z",
+          "approval": { "status": "pending", "by": null, "at": null }
+        }
+      ],
+      "filler": {
+        "labels": ["Intern", "Klantspecifiek", "Concept"],
+        "check_out_status": "none",
+        "last_viewed_by": ["anna.claes"],
+        "comments": []
+      }
+    },
+    {
+      "id": "doc-042",
+      "drive": "drive-pay",
+      "path": "Klanten/Scheldemond/Year-end benefits in kind Scheldemond.md",
+      "title": "Year-end: benefits in kind – Scheldemond Logistics",
+      "document_type": "Client note",
+      "owner": "jan.peeters",
+      "country_hint": "BE",
+      "created_by": "jan.peeters",
+      "created_at": "2025-12-15T10:20:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "jan.peeters",
+          "modified_at": "2025-12-15T10:20:00Z",
+          "approval": { "status": "approved", "by": "katrien.janssens", "at": "2025-12-16T08:55:00Z" }
+        }
+      ],
+      "filler": {
+        "labels": ["Internal", "Client-specific", "Year-end"],
+        "check_out_status": "none",
+        "last_viewed_by": ["anna.claes"],
+        "comments": []
+      }
+    },
+    {
+      "id": "doc-050",
+      "drive": "drive-pay",
+      "path": "Klanten/Polderveld/Notitie bruto-netto Polderveld.md",
+      "title": "Notitie bruto-netto oproepkrachten – Polderveld Retail",
+      "document_type": "Client note",
+      "owner": "pieter.devos",
+      "country_hint": "NL",
+      "created_by": "pieter.devos",
+      "created_at": "2026-02-10T13:50:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "pieter.devos",
+          "modified_at": "2026-02-10T13:50:00Z",
+          "approval": { "status": "approved", "by": "katrien.janssens", "at": "2026-02-12T16:05:00Z" }
+        },
+        {
+          "version": "2.0",
+          "modified_by": "pieter.devos",
+          "modified_at": "2026-04-22T12:55:00Z",
+          "approval": { "status": "pending", "by": null, "at": null }
+        }
+      ],
+      "filler": {
+        "labels": ["Intern", "Klantspecifiek", "NL"],
+        "check_out_status": "none",
+        "last_viewed_by": ["tom.maes", "lotte.vermeulen", "jan.peeters"],
+        "comments": [{ "by": "tom.maes", "at": "2026-08-26T16:05:00Z", "text": "Klopt dit nog nu Pieter weg is?" }]
+      }
+    },
+    {
+      "id": "doc-060",
+      "drive": "drive-hr",
+      "path": "Onboarding/Checklist onboarding France.md",
+      "title": "Checklist d'onboarding – France",
+      "document_type": "Checklist",
+      "owner": "marc.dupont",
+      "country_hint": "FR",
+      "created_by": "marc.dupont",
+      "created_at": "2024-05-06T09:00:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "marc.dupont",
+          "modified_at": "2024-05-06T09:00:00Z",
+          "approval": { "status": "approved", "by": "marc.dupont", "at": "2024-05-07T08:30:00Z" }
+        }
+      ],
+      "filler": {
+        "labels": ["Interne", "RH"],
+        "check_out_status": "none",
+        "last_viewed_by": ["nora.elamrani"],
+        "comments": [{ "by": "nora.elamrani", "at": "2026-07-02T09:20:00Z", "text": "La visite médicale est-elle toujours obligatoire ?" }]
+      }
+    },
+    {
+      "id": "doc-061",
+      "drive": "drive-hr",
+      "path": "Contrats/Modele CDD saisonnier.md",
+      "title": "Modèle de contrat CDD saisonnier",
+      "document_type": "Template",
+      "owner": "nora.elamrani",
+      "country_hint": "FR",
+      "created_by": "nora.elamrani",
+      "created_at": "2026-03-10T10:15:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "nora.elamrani",
+          "modified_at": "2026-03-10T10:15:00Z",
+          "approval": { "status": "approved", "by": "marc.dupont", "at": "2026-03-12T13:00:00Z" }
+        }
+      ],
+      "filler": {
+        "labels": ["Interne", "RH", "Modèle"],
+        "check_out_status": "none",
+        "last_viewed_by": ["marc.dupont"],
+        "comments": []
+      }
+    },
+    {
+      "id": "doc-070",
+      "drive": "drive-time",
+      "path": "Absence/Absence code guide.md",
+      "title": "Absence code guide",
+      "document_type": "Guide",
+      "owner": "emma.wouters",
+      "country_hint": null,
+      "created_by": "emma.wouters",
+      "created_at": "2026-01-15T09:30:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "emma.wouters",
+          "modified_at": "2026-01-15T09:30:00Z",
+          "approval": { "status": "approved", "by": "emma.wouters", "at": "2026-01-16T08:00:00Z" }
+        }
+      ],
+      "filler": {
+        "labels": ["Internal", "Time"],
+        "check_out_status": "none",
+        "last_viewed_by": ["lucas.jacobs"],
+        "comments": []
+      }
+    },
+    {
+      "id": "doc-071",
+      "drive": "drive-time",
+      "path": "Clients/Scheldemond/Part-time sickness configuration Scheldemond.md",
+      "title": "Part-time sickness: absence configuration – Scheldemond Logistics",
+      "document_type": "Configuration note",
+      "owner": "lucas.jacobs",
+      "country_hint": "BE",
+      "created_by": "lucas.jacobs",
+      "created_at": "2026-09-01T14:30:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "lucas.jacobs",
+          "modified_at": "2026-09-01T14:30:00Z",
+          "approval": { "status": "approved", "by": "emma.wouters", "at": "2026-09-03T09:00:00Z" }
+        }
+      ],
+      "filler": {
+        "labels": ["Internal", "Time", "Client-specific"],
+        "check_out_status": "none",
+        "last_viewed_by": ["emma.wouters"],
+        "comments": []
+      }
+    },
+    {
+      "id": "doc-080",
+      "drive": "drive-pay",
+      "path": "Team/Werkafspraken Pay team.md",
+      "title": "Werkafspraken Pay team",
+      "document_type": "Team page",
+      "owner": "katrien.janssens",
+      "country_hint": null,
+      "created_by": "katrien.janssens",
+      "created_at": "2026-01-06T08:00:00Z",
+      "versions": [
+        {
+          "version": "1.0",
+          "modified_by": "katrien.janssens",
+          "modified_at": "2026-01-06T08:00:00Z",
+          "approval": { "status": "approved", "by": "katrien.janssens", "at": "2026-01-06T08:05:00Z" }
+        }
+      ],
+      "filler": {
+        "labels": ["Intern"],
+        "check_out_status": "none",
+        "last_viewed_by": ["anna.claes", "tom.maes", "sophie.dubois", "jan.peeters", "lotte.vermeulen"],
+        "comments": []
+      }
+    }
+  ]
+}

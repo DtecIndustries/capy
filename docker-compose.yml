@@ -23,10 +23,14 @@ services:
       DATABASE_URL: postgres://capy:capy@db:5432/capy
       MAIL_GRAPH_URL: http://mail-mock:4010/v1.0
       MAIL_GRAPH_TOKEN: ${MAIL_MOCK_TOKEN:-dev-mail-token}
+      SHAREPOINT_GRAPH_URL: http://sharepoint-mock:4020/v1.0
+      SHAREPOINT_GRAPH_TOKEN: ${SHAREPOINT_MOCK_TOKEN:-dev-sp-token}
     depends_on:
       db:
         condition: service_healthy
       mail-mock:
+        condition: service_started
+      sharepoint-mock:
         condition: service_started
 
   mail-mock:
@@ -39,6 +43,17 @@ services:
       PORT: 4010
       MAIL_MOCK_TOKEN: ${MAIL_MOCK_TOKEN:-dev-mail-token}
       MAIL_MOCK_ADMIN_TOKEN: ${MAIL_MOCK_ADMIN_TOKEN:-dev-mail-admin-token}
+
+  sharepoint-mock:
+    build:
+      context: ./mocks
+      dockerfile: sharepoint/Dockerfile
+    ports:
+      - "4020:4020"
+    environment:
+      PORT: 4020
+      SHAREPOINT_MOCK_TOKEN: ${SHAREPOINT_MOCK_TOKEN:-dev-sp-token}
+      SHAREPOINT_MOCK_ADMIN_TOKEN: ${SHAREPOINT_MOCK_ADMIN_TOKEN:-dev-sp-admin-token}
 
 volumes:
   pgdata:
