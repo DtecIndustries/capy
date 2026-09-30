@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import { migrate } from './db/migrate.js'
+import { registerMcp } from './mcp/handler.js'
 
 const app = Fastify({ logger: true })
 
@@ -11,6 +12,7 @@ const port = Number(process.env.PORT ?? 3000)
 
 try {
   await migrate()
+  await registerMcp(app)
   await app.listen({ port, host: '0.0.0.0' })
 } catch (err) {
   app.log.error(err)
