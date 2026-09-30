@@ -9,7 +9,7 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm build
+RUN ./node_modules/.bin/tsc
 
 FROM node:22-alpine AS prod
 WORKDIR /app
