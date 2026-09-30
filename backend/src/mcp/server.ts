@@ -146,31 +146,53 @@ export function createMcpServer(caller?: CallerIdentity): McpServer {
       ])
 
       const experts = expertResults.slice(0, 3).map(e => ({
-        person_id: e.person_id,
         name: e.name,
-        relevance_pct: Math.round(e.score * 100),
+        pct: Math.round(e.score * 100),
         bus_factor_risk: e.bus_factor_risk,
       }))
 
       const documents = docResults.slice(0, 5).map(d => ({
-        document_id: d.document_id,
         title: d.title,
         verdict: d.verdict,
-        relevance_pct: d.signals.scope_match === 'client-specific' ? 90
+        pct: d.signals.scope_match === 'client-specific' ? 90
           : d.signals.scope_match === 'generic' ? 70
           : 40,
-        reasons: d.reasons,
+        reason: d.reasons[0] ?? '',
       }))
+
+      const verdictEmoji: Record<string, string> = {
+        trusted: '✅', conflict: '⚠️', unowned: '👻', stale: '🕸️', scope_mismatch: '🌍',
+      }
+
+      const expertLines = experts.length > 0
+        ? experts.map(e =>
+            `| ${e.name} | ${e.pct}% |${e.bus_factor_risk ? ' ⚠️ only expert' : ''}`
+          ).join('\n')
+        : '| — | No experts found |'
+
+      const docLines = documents.length > 0
+        ? documents.map(d =>
+            `| ${verdictEmoji[d.verdict] ?? '❓'} ${d.title} | ${d.pct}% | ${d.reason} |`
+          ).join('\n')
+        : '| — | No documents found | |'
+
+      const md = `## Lookup: ${domainId} · ${client}
+
+### 👥 Top experts
+| Name | Relevance |
+|---|---|
+${expertLines}
+
+### 📄 Top documents
+| Document | Relevance | Reason |
+|---|---|---|
+${docLines}
+`
 
       return {
         content: [{
           type: 'text' as const,
-          text: JSON.stringify({
-            query,
-            resolved: { app: route.app, domain: domainId, client },
-            experts,
-            documents,
-          }, null, 2),
+          text: md,
         }],
       }
     }
