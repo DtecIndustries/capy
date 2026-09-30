@@ -26,19 +26,50 @@ docker compose down -v
 
 ## Install MCP in Claude desktop
 
+### 1. Generate a dev token
+
+Each persona gets their own token. Run this after seeding the database:
+
+```bash
+cd backend
+pnpm gen-tokens
+```
+
+Copy the token for the persona you want to use.
+
+### 2. Add to Claude desktop config
+
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "capy-ledger": {
-      "url": "http://localhost:3737/mcp"
+      "command": "node",
+      "args": ["/path/to/capy/backend/dist/mcp/stdio.js"],
+      "env": {
+        "DATABASE_URL": "postgres://capy:capy@localhost:5432/capy",
+        "CAPY_TOKEN": "paste-token-here"
+      }
     }
   }
 }
 ```
 
-Restart Claude desktop. The tools `trusted_docs`, `who_knows`, `get_provenance` and `health` will appear.
+Replace `/path/to/capy` with the actual path to this repo, and paste the token from the previous step.
+
+### 3. Restart Claude desktop
+
+The tools `trusted_docs`, `who_knows`, `get_provenance` and `health` will appear. Swap `CAPY_TOKEN` to a different persona's token to demo client-scoped access.
+
+### Available tools
+
+| Tool | What it does |
+|---|---|
+| `trusted_docs` | Ranked trustworthy documents for an app, domain and client — with reasons |
+| `who_knows` | Ranked experts with evidence rows and bus-factor flags |
+| `get_provenance` | Full ledger history for a document |
+| `health` | Housekeeping findings: orphaned, stale, unreviewed, conflicts, gaps, bus factor |
 
 ## Backend development (without Docker)
 
