@@ -23,6 +23,18 @@ export async function bearerCaller(req: FastifyRequest): Promise<CallerIdentity 
 export async function registerApi(app: FastifyInstance) {
   // Dev only: lists the seeded people with ready-made tokens, for the persona switcher.
   if (process.env.CAPY_DEV_PERSONAS === 'true') {
+    app.get('/api/dev/ledger', async (req) => {
+      const limit = Math.min(Number((req.query as Record<string, string>).limit ?? 200), 500)
+      return sql`
+        SELECT e.seq, e.event_type, e.actor_id, p.name AS actor_name,
+               e.subject_id, e.payload, e.recorded_at, e.hash
+        FROM event e
+        LEFT JOIN person p ON p.id = e.actor_id
+        ORDER BY e.seq DESC
+        LIMIT ${limit}
+      `
+    })
+
     app.get('/api/dev/personas', async () => {
       const people = await sql<{ id: string; name: string; team_id: string; team_name: string; client_ids: string[] }[]>`
         SELECT p.id, p.name, p.team_id, t.name AS team_name,

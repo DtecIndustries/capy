@@ -4,6 +4,7 @@ import { Capybara, MOODS, type Mood } from './components/Capybara'
 import logo from './assets/logo.jpeg'
 import { PersonaSwitcher } from './components/PersonaSwitcher'
 import { Health } from './pages/Health'
+import { Ledger } from './pages/Ledger'
 import { Lookup } from './pages/Lookup'
 import { Provenance } from './pages/Provenance'
 import type { Persona, Taxonomy } from './types'
@@ -71,6 +72,7 @@ export function App() {
         <nav>
           <a href="#/" className={route === '/' || provenance ? 'active' : ''}>Lookup</a>
           <a href="#/health" className={route === '/health' ? 'active' : ''}>Health board</a>
+          <a href="#/ledger" className={route === '/ledger' ? 'active' : ''}>Ledger</a>
         </nav>
         {personas.length > 0 && <PersonaSwitcher personas={personas} current={persona} onChange={choose} />}
       </header>
@@ -83,6 +85,8 @@ export function App() {
               <Provenance documentId={decodeURIComponent(provenance[1])} />
             ) : route === '/health' ? (
               <Health taxonomy={taxonomy} />
+            ) : route === '/ledger' ? (
+              <Ledger />
             ) : (
               <Lookup key={persona.id} taxonomy={taxonomy} />
             )}

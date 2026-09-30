@@ -103,3 +103,14 @@ export interface DomainHealth {
   domain: { id: string; name: string; owner_team_name: string }
   findings: Finding[]
 }
+
+export interface LedgerEvent {
+  seq: number
+  event_type: string
+  actor_id: string | null
+  actor_name: string | null
+  subject_id: string
+  payload: Record<string, unknown>
+  recorded_at: string
+  hash: string
+}

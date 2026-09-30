@@ -1,4 +1,4 @@
-import type { DomainHealth, LookupResult, Persona, Provenance, Taxonomy } from './types'
+import type { DomainHealth, LedgerEvent, LookupResult, Persona, Provenance, Taxonomy } from './types'
 
 const TOKEN_KEY = 'capy.token'
 
@@ -34,4 +34,5 @@ export const api = {
     get<LookupResult>(`/api/lookup?${new URLSearchParams({ app, domain, client })}`),
   provenance: (documentId: string) => get<Provenance>(`/api/documents/${encodeURIComponent(documentId)}/provenance`),
   health: (app: string) => get<DomainHealth[]>(`/api/health?${new URLSearchParams({ app })}`),
+  ledger: (limit = 200) => get<LedgerEvent[]>(`/api/dev/ledger?limit=${limit}`, null),
 }
