@@ -2,6 +2,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { getTrustedDocs } from '../engines/trust.js'
 import { getExperts } from '../engines/expertise.js'
+import { getProvenance } from '../engines/provenance.js'
+import { getHealth } from '../engines/health.js'
 
 export function createMcpServer(): McpServer {
   const server = new McpServer({
@@ -57,15 +59,11 @@ export function createMcpServer(): McpServer {
       document_id: z.string().describe('Document id, e.g. "doc-014"'),
     },
     async ({ document_id }) => {
-      // TODO: query ledger events for this document
+      const result = await getProvenance(document_id)
       return {
         content: [{
           type: 'text' as const,
-          text: JSON.stringify({
-            document_id,
-            events: [],
-            _stub: true,
-          }, null, 2),
+          text: JSON.stringify(result, null, 2),
         }],
       }
     }
@@ -79,15 +77,11 @@ export function createMcpServer(): McpServer {
       domain: z.string().describe('Domain id'),
     },
     async ({ app, domain }) => {
-      // TODO: call housekeeping engine
+      const result = await getHealth(app, domain)
       return {
         content: [{
           type: 'text' as const,
-          text: JSON.stringify({
-            context: { app, domain },
-            findings: [],
-            _stub: true,
-          }, null, 2),
+          text: JSON.stringify(result, null, 2),
         }],
       }
     }
