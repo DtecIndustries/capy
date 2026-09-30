@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { getTrustedDocs } from '../engines/trust.js'
+import { getExperts } from '../engines/expertise.js'
 
 export function createMcpServer(): McpServer {
   const server = new McpServer({
@@ -38,16 +39,12 @@ export function createMcpServer(): McpServer {
       client: z.string().describe('Client id'),
     },
     async ({ app, domain, client }) => {
-      // TODO: call expertise engine
+      const experts = await getExperts({ app, domain, client })
+      const bus_factor_risk = experts.some(e => e.bus_factor_risk)
       return {
         content: [{
           type: 'text' as const,
-          text: JSON.stringify({
-            context: { app, domain, client },
-            experts: [],
-            bus_factor_risk: false,
-            _stub: true,
-          }, null, 2),
+          text: JSON.stringify({ context: { app, domain, client }, experts, bus_factor_risk }, null, 2),
         }],
       }
     }
