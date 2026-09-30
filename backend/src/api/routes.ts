@@ -6,6 +6,7 @@ import { getHealth } from '../engines/health.js'
 import { lookup } from '../engines/lookup.js'
 import { getProvenance } from '../engines/provenance.js'
 import { tagDocument } from '../ingestion/tagging.js'
+import { loadSeed } from '../ingestion/seed.js'
 
 // REST API for the web UI. Every route needs a bearer token; the caller's identity and
 // client bindings come from that token only.
@@ -69,6 +70,11 @@ export async function registerApi(app: FastifyInstance) {
         if (tags.length > 0) tagged++
       }
       return { checked: rows.length, tagged }
+    })
+
+    app.post('/api/dev/reseed', async () => {
+      await loadSeed()
+      return { ok: true }
     })
 
     app.get('/api/dev/personas', async () => {
