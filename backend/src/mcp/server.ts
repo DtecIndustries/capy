@@ -5,6 +5,16 @@ import { getExperts } from '../engines/expertise.js'
 import { getProvenance } from '../engines/provenance.js'
 import { getHealth } from '../engines/health.js'
 import type { CallerIdentity } from '../access/auth.js'
+import { assertClientAccess, ScopeError } from '../access/scope.js'
+
+function scopeErrorResponse(err: ScopeError) {
+  return {
+    content: [{
+      type: 'text' as const,
+      text: JSON.stringify({ error: 'access_denied', message: err.message }, null, 2),
+    }],
+  }
+}
 
 export function createMcpServer(caller?: CallerIdentity): McpServer {
   const server = new McpServer({
@@ -21,6 +31,7 @@ export function createMcpServer(caller?: CallerIdentity): McpServer {
       client: z.string().describe('Client id, e.g. "client-x"'),
     },
     async ({ app, domain, client }) => {
+      try { assertClientAccess(caller, client) } catch (e) { return scopeErrorResponse(e as ScopeError) }
       const results = await getTrustedDocs({ app, domain, client })
       const trusted = results.filter(r => !r.excluded)
       const excluded = results.filter(r => r.excluded)
@@ -42,6 +53,7 @@ export function createMcpServer(caller?: CallerIdentity): McpServer {
       client: z.string().describe('Client id'),
     },
     async ({ app, domain, client }) => {
+      try { assertClientAccess(caller, client) } catch (e) { return scopeErrorResponse(e as ScopeError) }
       const experts = await getExperts({ app, domain, client })
       const bus_factor_risk = experts.some(e => e.bus_factor_risk)
       return {
