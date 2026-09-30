@@ -3,8 +3,8 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 FROM base AS deps
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+COPY package.json pnpm-lock.yaml pnpm.yaml ./
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
