@@ -6,6 +6,49 @@
 
 Knowledge in large organisations goes stale silently — documents get outdated, experts move on, and nobody knows what to trust. Capy is a living ledger that continuously tracks every document and expert across your apps and domains, so you always know who to ask and which source to rely on.
 
+## How it works
+
+Capy has three parts: **connectors** that pull from your existing sources (currently SharePoint and email, built to be easily extendable), a **ledger** that continuously tracks every document and who the owner/changer is across your apps and domains, and an **MCP server** that plugs straight into your existing AI agent (no need for yet another agent), so your agent can always answer who to ask and which source to trust, without guessing.
+
+### Connectors
+Connectors poll your sources on a short interval and write changes to the ledger automatically. Currently SharePoint and email are supported. Adding a new source means implementing a connector that emits events following the existing contract — the ledger handles tagging, trust scoring, and expert surfacing without any changes to the core engine.
+
+### The ledger
+The internal ledger keeps score of who knows what and which documents are still reliable. It tracks who changed what, for which client, in which domain — building a clear picture of which colleagues are best placed to answer any given question. As documents are updated or people leave, it stays current automatically and is always viewable in the admin portal.
+
+![Capy ledger](assets/capy-ledger.png)
+
+### MCP server
+Connect the MCP server to your existing AI agent once. Then you can prompt your favourite agent in plain language and get back ranked experts, trustworthy documents, full document history, and health warnings — like a domain where only one person holds the knowledge, or a document nobody has reviewed in months. Tokens are permission-scoped, so each user only has access to the clients and documents they are bound to. See the example prompts below.
+
+![Example prompt](assets/example-prompt.png)
+
+#### Example prompts
+
+The easiest way to start — just describe the situation in plain language:
+
+> *"A customer called about sick leave in the Pay app — who should I contact and what documents apply?"*
+
+> *"sick leave, Scheldemond"*
+
+> *"Who's the expert on year-end payroll for Polderveld?"*
+
+> *"Which HR contracts documents can I trust for Ardenne Bakkerijen?"*
+
+> *"Show me the history of document doc-014"*
+
+> *"Is the pay sick leave domain in good shape?"*
+
+#### Available tools
+
+| Tool | What it does |
+|---|---|
+| `lookup` | **Start here.** Free-text query → top 3 experts with relevance % + top documents |
+| `trusted_docs` | Ranked trustworthy documents for an app, domain and client — with reasons |
+| `who_knows` | Ranked experts with evidence rows and bus-factor flags |
+| `get_provenance` | Full ledger history for a document |
+| `health` | Housekeeping findings: orphaned, stale, unreviewed, conflicts, gaps, bus factor |
+
 ## Run
 
 ```bash
@@ -69,32 +112,6 @@ Replace `/path/to/capy` with the actual path to this repo, and paste the token f
 ### 3. Restart Claude desktop
 
 The tools `trusted_docs`, `who_knows`, `get_provenance` and `health` will appear. Swap `CAPY_TOKEN` to a different persona's token to demo client-scoped access.
-
-### Example prompts
-
-The easiest way to start — just describe the situation in plain language:
-
-> *"A customer called about sick leave in the Pay app — who should I contact and what documents apply?"*
-
-> *"sick leave, Scheldemond"*
-
-> *"Who's the expert on year-end payroll for Polderveld?"*
-
-> *"Which HR contracts documents can I trust for Ardenne Bakkerijen?"*
-
-> *"Show me the history of document doc-014"*
-
-> *"Is the pay sick leave domain in good shape?"*
-
-### Available tools
-
-| Tool | What it does |
-|---|---|
-| `lookup` | **Start here.** Free-text query → top 3 experts with relevance % + top documents |
-| `trusted_docs` | Ranked trustworthy documents for an app, domain and client — with reasons |
-| `who_knows` | Ranked experts with evidence rows and bus-factor flags |
-| `get_provenance` | Full ledger history for a document |
-| `health` | Housekeeping findings: orphaned, stale, unreviewed, conflicts, gaps, bus factor |
 
 ## Backend development (without Docker)
 
