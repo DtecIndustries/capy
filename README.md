@@ -66,10 +66,27 @@ Replace `/path/to/capy` with the actual path to this repo, and paste the token f
 
 The tools `trusted_docs`, `who_knows`, `get_provenance` and `health` will appear. Swap `CAPY_TOKEN` to a different persona's token to demo client-scoped access.
 
+### Example prompts
+
+The easiest way to start — just describe the situation in plain language:
+
+> *"A customer called about sick leave in the Pay app — who should I contact and what documents apply?"*
+
+> *"sick leave, Scheldemond"*
+
+> *"Who's the expert on year-end payroll for Polderveld?"*
+
+> *"Which HR contracts documents can I trust for Ardenne Bakkerijen?"*
+
+> *"Show me the history of document doc-014"*
+
+> *"Is the pay sick leave domain in good shape?"*
+
 ### Available tools
 
 | Tool | What it does |
 |---|---|
+| `lookup` | **Start here.** Free-text query → top 3 experts with relevance % + top documents |
 | `trusted_docs` | Ranked trustworthy documents for an app, domain and client — with reasons |
 | `who_knows` | Ranked experts with evidence rows and bus-factor flags |
 | `get_provenance` | Full ledger history for a document |
