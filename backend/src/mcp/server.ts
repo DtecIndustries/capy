@@ -4,8 +4,9 @@ import { getTrustedDocs } from '../engines/trust.js'
 import { getExperts } from '../engines/expertise.js'
 import { getProvenance } from '../engines/provenance.js'
 import { getHealth } from '../engines/health.js'
+import type { CallerIdentity } from '../access/auth.js'
 
-export function createMcpServer(): McpServer {
+export function createMcpServer(caller?: CallerIdentity): McpServer {
   const server = new McpServer({
     name: 'capy-ledger',
     version: '0.1.0',
