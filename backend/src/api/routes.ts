@@ -28,9 +28,17 @@ export async function registerApi(app: FastifyInstance) {
       const limit = Math.min(Number((req.query as Record<string, string>).limit ?? 200), 500)
       return sql`
         SELECT e.seq, e.type AS event_type, e.actor_id, p.name AS actor_name,
-               e.subject_id, e.domain_id, e.client_id, e.payload, e.ts AS recorded_at, e.hash
+               e.subject_id,
+               COALESCE(e.domain_id, da.domain_id) AS domain_id,
+               COALESCE(e.client_id, da.client_id) AS client_id,
+               e.payload, e.ts AS recorded_at, e.hash
         FROM event e
         LEFT JOIN person p ON p.id = e.actor_id
+        LEFT JOIN LATERAL (
+          SELECT domain_id, client_id FROM document_area
+          WHERE document_version_id = e.subject_id
+          LIMIT 1
+        ) da ON true
         ORDER BY e.seq DESC
         LIMIT ${limit}
       `
