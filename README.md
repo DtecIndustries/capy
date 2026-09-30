@@ -1,6 +1,10 @@
-# Capybara Ledger
+<p align="center">
+  <img src="frontend/src/assets/logo.jpeg" alt="Capy logo" width="120" />
+</p>
 
-A trust layer for organisational knowledge. For any app, domain and client it answers: **who knows about this**, and **which documents can be trusted right now**.
+# Capy
+
+Knowledge in large organisations goes stale silently — documents get outdated, experts move on, and nobody knows what to trust. Capy is a living ledger that continuously tracks every document and expert across your apps and domains, so you always know who to ask and which source to rely on.
 
 ## Run
 
