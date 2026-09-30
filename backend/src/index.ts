@@ -8,7 +8,7 @@ app.get('/health', async () => {
   return { status: 'ok' }
 })
 
-const port = Number(process.env.PORT ?? 3000)
+const port = Number(process.env.PORT ?? 3737)
 
 try {
   await migrate()

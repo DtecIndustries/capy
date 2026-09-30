@@ -17,9 +17,9 @@ services:
   backend:
     build: ./backend
     ports:
-      - "3000:3000"
+      - "3737:3737"
     environment:
-      PORT: 3000
+      PORT: 3737
       DATABASE_URL: postgres://capy:capy@db:5432/capy
     depends_on:
       db:
