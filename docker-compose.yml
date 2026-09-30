@@ -26,6 +26,7 @@ services:
       SHAREPOINT_GRAPH_URL: http://sharepoint-mock:4020/v1.0
       SHAREPOINT_GRAPH_TOKEN: ${SHAREPOINT_MOCK_TOKEN:-dev-sp-token}
       SEED_DIR: /app/seed
+      CAPY_DEV_PERSONAS: "true"
     volumes:
       - ./mocks/seed:/app/seed:ro
     depends_on:
@@ -35,6 +36,13 @@ services:
         condition: service_started
       sharepoint-mock:
         condition: service_started
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5178:80"
+    depends_on:
+      - backend
 
   mail-mock:
     build:

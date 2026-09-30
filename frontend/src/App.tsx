@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, getToken, setToken } from './api'
 import { Capybara, MOODS, type Mood } from './components/Capybara'
+import logo from './assets/logo.jpeg'
 import { PersonaSwitcher } from './components/PersonaSwitcher'
 import { Health } from './pages/Health'
 import { Lookup } from './pages/Lookup'
@@ -61,7 +62,7 @@ export function App() {
     <div className="app">
       <header className="top">
         <a href="#/" className="brand">
-          <Capybara mood="relaxed" size={36} />
+          <img src={logo} alt="Capybara Ledger" style={{ height: 36, borderRadius: 6 }} />
           <span>
             Capybara Ledger
             <small>Who knows about this, and what can we trust?</small>
