@@ -5,6 +5,7 @@ import { assertClientAccess, canSeeDocument, ScopeError } from '../access/scope.
 import { getHealth } from '../engines/health.js'
 import { lookup } from '../engines/lookup.js'
 import { getProvenance } from '../engines/provenance.js'
+import { tagDocument } from '../ingestion/tagging.js'
 
 // REST API for the web UI. Every route needs a bearer token; the caller's identity and
 // client bindings come from that token only.
@@ -33,6 +34,31 @@ export async function registerApi(app: FastifyInstance) {
         ORDER BY e.seq DESC
         LIMIT ${limit}
       `
+    })
+
+    app.post('/api/dev/retag', async () => {
+      const rows = await sql<{ version_id: string; title: string; location: string | null; country_hint: string | null }[]>`
+        SELECT dv.id AS version_id, d.title,
+               (SELECT e.payload->>'location' FROM event e WHERE e.subject_id = dv.id AND e.type = 'source_created' LIMIT 1) AS location,
+               d.country_hint
+        FROM document_version dv
+        JOIN document d ON d.id = dv.document_id
+        WHERE NOT EXISTS (SELECT 1 FROM document_area da WHERE da.document_version_id = dv.id)
+      `
+      let tagged = 0
+      for (const row of rows) {
+        if (!row.location) continue
+        const tags = await tagDocument({ title: row.title, location: row.location, content: '', countryHint: row.country_hint ?? undefined })
+        for (const t of tags) {
+          await sql`
+            INSERT INTO document_area (document_version_id, domain_id, client_id, country, confidence, tagged_by)
+            VALUES (${row.version_id}, ${t.domain_id}, ${t.client_id}, ${t.country}, ${t.confidence}, ${t.tagged_by})
+            ON CONFLICT DO NOTHING
+          `
+        }
+        if (tags.length > 0) tagged++
+      }
+      return { checked: rows.length, tagged }
     })
 
     app.get('/api/dev/personas', async () => {
