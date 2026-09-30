@@ -26,8 +26,8 @@ export async function registerApi(app: FastifyInstance) {
     app.get('/api/dev/ledger', async (req) => {
       const limit = Math.min(Number((req.query as Record<string, string>).limit ?? 200), 500)
       return sql`
-        SELECT e.seq, e.event_type, e.actor_id, p.name AS actor_name,
-               e.subject_id, e.payload, e.recorded_at, e.hash
+        SELECT e.seq, e.type AS event_type, e.actor_id, p.name AS actor_name,
+               e.subject_id, e.domain_id, e.client_id, e.payload, e.ts AS recorded_at, e.hash
         FROM event e
         LEFT JOIN person p ON p.id = e.actor_id
         ORDER BY e.seq DESC
