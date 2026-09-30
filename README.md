@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/src/assets/logo.jpeg" alt="Capy logo" width="120" />
+  <img src="frontend/src/assets/logo.jpeg" alt="Capy logo" width="220" />
 </p>
 
 # Capy
@@ -8,7 +8,7 @@ Knowledge in large organisations goes stale silently — documents get outdated,
 
 ## How it works
 
-Capy has three parts: **connectors** that pull from your existing sources (currently SharePoint and email, built to be easily extendable), a **ledger** that continuously tracks every document and who the owner/changer is across your apps and domains, and an **MCP server** that plugs straight into your existing AI agent (no need for yet another agent), so your agent can always answer who to ask and which source to trust, without guessing.
+Capy has three parts: **connectors** that pull from your existing sources (currently SharePoint and email, built to be easily extendable), **a ledger** that continuously tracks every document and who the owner/changer is across your apps and domains, **and an MCP server** that plugs straight into your existing AI agent (no need for yet another agent), so your agent can always answer who to ask and which source to trust, without guessing.
 
 ### Connectors
 Connectors poll your sources on a short interval and write changes to the ledger automatically. Currently SharePoint and email are supported. Adding a new source means implementing a connector that emits events following the existing contract — the ledger handles tagging, trust scoring, and expert surfacing without any changes to the core engine.
