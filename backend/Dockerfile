@@ -1,6 +1,6 @@
 FROM node:22-alpine AS base
 WORKDIR /app
-RUN npm install -g pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 FROM base AS deps
 COPY package.json pnpm-lock.yaml* ./
@@ -18,5 +18,5 @@ COPY --from=build /app/src/db/schema.sql ./dist/db/schema.sql
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./
 ENV NODE_ENV=production
-EXPOSE 3000
+EXPOSE 3737
 CMD ["node", "dist/index.js"]
