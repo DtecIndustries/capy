@@ -48,7 +48,7 @@ export async function registerApi(app: FastifyInstance) {
       let tagged = 0
       for (const row of rows) {
         if (!row.location) continue
-        const tags = await tagDocument({ title: row.title, location: row.location, content: '', countryHint: row.country_hint ?? undefined })
+        const tags = await tagDocument({ title: row.title, location: row.location, content: '', countryHint: row.country_hint ?? null })
         for (const t of tags) {
           await sql`
             INSERT INTO document_area (document_version_id, domain_id, client_id, country, confidence, tagged_by)
