@@ -1,5 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { getTrustedDocs } from '../engines/trust.js'
 
 export function createMcpServer(): McpServer {
   const server = new McpServer({
@@ -16,16 +17,13 @@ export function createMcpServer(): McpServer {
       client: z.string().describe('Client id, e.g. "client-x"'),
     },
     async ({ app, domain, client }) => {
-      // TODO: call trust engine
+      const results = await getTrustedDocs({ app, domain, client })
+      const trusted = results.filter(r => !r.excluded)
+      const excluded = results.filter(r => r.excluded)
       return {
         content: [{
           type: 'text' as const,
-          text: JSON.stringify({
-            context: { app, domain, client },
-            trusted: [],
-            excluded: [],
-            _stub: true,
-          }, null, 2),
+          text: JSON.stringify({ context: { app, domain, client }, trusted, excluded }, null, 2),
         }],
       }
     }
