@@ -113,7 +113,7 @@ export function Ledger() {
                   <td style={{ padding: '6px 10px' }}><EventBadge type={e.event_type} /></td>
                   <td style={{ padding: '6px 10px', fontFamily: 'monospace', fontSize: 12, color: '#94a3b8' }}>{e.subject_id}</td>
                   <td style={{ padding: '6px 10px', color: '#cbd5e1' }}>{e.actor_name ?? <span style={{ color: '#475569' }}>—</span>}</td>
-                  <td style={{ padding: '6px 10px', fontFamily: 'monospace', fontSize: 12, color: e.client_id ? '#fbbf24' : '#475569' }}>{e.client_id ?? '—'}</td>
+                  <td style={{ padding: '6px 10px', fontSize: 12, color: e.client_name ? '#fbbf24' : '#475569' }}>{e.client_name ?? '—'}</td>
                   <td style={{ padding: '6px 10px', fontFamily: 'monospace', fontSize: 12, color: e.domain_id ? '#94a3b8' : '#475569' }}>{e.domain_id ?? '—'}</td>
                   <td style={{ padding: '6px 10px' }}><PayloadCell payload={e.payload} /></td>
                   <td style={{ padding: '6px 10px', color: '#64748b', fontSize: 12 }}>{new Date(e.recorded_at).toLocaleString()}</td>

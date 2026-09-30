@@ -112,6 +112,7 @@ export interface LedgerEvent {
   subject_id: string
   domain_id: string | null
   client_id: string | null
+  client_name: string | null
   payload: Record<string, unknown>
   recorded_at: string
   hash: string

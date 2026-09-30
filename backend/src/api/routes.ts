@@ -31,6 +31,7 @@ export async function registerApi(app: FastifyInstance) {
                e.subject_id,
                COALESCE(e.domain_id, da.domain_id) AS domain_id,
                COALESCE(e.client_id, da.client_id) AS client_id,
+               c.name AS client_name,
                e.payload, e.ts AS recorded_at, e.hash
         FROM event e
         LEFT JOIN person p ON p.id = e.actor_id
@@ -39,6 +40,7 @@ export async function registerApi(app: FastifyInstance) {
           WHERE document_version_id = e.subject_id
           LIMIT 1
         ) da ON true
+        LEFT JOIN client c ON c.id = COALESCE(e.client_id, da.client_id)
         ORDER BY e.seq DESC
         LIMIT ${limit}
       `
