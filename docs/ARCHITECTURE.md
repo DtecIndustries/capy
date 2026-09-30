@@ -32,7 +32,7 @@ The design goal is a small system that is easy to demo and easy to explain: **on
 | 3 | **Web UI** | Lookup, provenance view, health board, capybara states, persona switcher | React + Vite |
 | 4 | **Database** | Events, documents, versions, people, teams, domains, client bindings | SQLite locally, Postgres if deployed |
 | 5 | **Mock SharePoint** | Watched folder of documents plus metadata; emits a change event on every file save | Folder watcher plus `sharepoint.meta.json` |
-| 6 | **Mock Mail** | Replays `mailbox.jsonl`; emits events for new mails; a `send-mail` command for live moments | Script |
+| 6 | **Mock Mail** | Serves `mailbox.jsonl` through Microsoft Graph–shaped delta endpoints the backend polls; a `send-mail` command for live moments | Fastify service (TypeScript), see `mocks/mail/README.md` |
 | 7 | **LLM** | Tags documents and mails to app, domain and client; flags contradictions between sibling documents. Runs at ingestion only | Gemini on Vertex AI, or Claude |
 
 Modules inside the backend (not separate services):
@@ -90,7 +90,8 @@ capy-ledger/
 │   │       └── Pay/Year-end/
 │   ├── mail/
 │   │   ├── mailbox.jsonl         # one mail per line
-│   │   └── send_mail.py          # live "send a mail" command for the demo
+│   │   ├── live/                 # presets for live demo mails
+│   │   └── src/                  # Graph-shaped mail API + send-mail command
 │   └── simulate.py               # live moments: edit, approve, person-leaves
 │
 ├── backend/

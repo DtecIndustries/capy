@@ -1,0 +1,125 @@
+{
+  "teams": [
+    { "id": "team-pay", "name": "Pay team", "app": "pay" },
+    { "id": "team-time", "name": "Time team", "app": "time" },
+    { "id": "team-hr", "name": "HR team", "app": "hr" }
+  ],
+  "clients": [
+    { "id": "client-x", "name": "Scheldemond Logistics NV", "country": "BE" },
+    { "id": "client-y", "name": "Polderveld Retail BV", "country": "NL" },
+    { "id": "client-z", "name": "Ardenne Bakkerijen NV", "country": "BE" },
+    { "id": "client-w", "name": "Atelier Lumière SA", "country": "FR" }
+  ],
+  "people": [
+    {
+      "id": "katrien.janssens",
+      "name": "Katrien Janssens",
+      "team": "team-pay",
+      "role": "Team lead Pay",
+      "status": "active",
+      "left_at": null,
+      "client_bindings": ["client-x", "client-y", "client-z"],
+      "email": "katrien.janssens@example.test"
+    },
+    {
+      "id": "sophie.dubois",
+      "name": "Sophie Dubois",
+      "team": "team-pay",
+      "role": "Payroll consultant",
+      "status": "active",
+      "left_at": null,
+      "client_bindings": ["client-x", "client-z"],
+      "email": "sophie.dubois@example.test"
+    },
+    {
+      "id": "jan.peeters",
+      "name": "Jan Peeters",
+      "team": "team-pay",
+      "role": "Senior payroll consultant",
+      "status": "active",
+      "left_at": null,
+      "client_bindings": ["client-x", "client-y"],
+      "email": "jan.peeters@example.test"
+    },
+    {
+      "id": "anna.claes",
+      "name": "Anna Claes",
+      "team": "team-pay",
+      "role": "Junior payroll consultant",
+      "status": "active",
+      "left_at": null,
+      "client_bindings": ["client-x", "client-z"],
+      "email": "anna.claes@example.test"
+    },
+    {
+      "id": "tom.maes",
+      "name": "Tom Maes",
+      "team": "team-pay",
+      "role": "Payroll consultant",
+      "status": "active",
+      "left_at": null,
+      "client_bindings": ["client-x", "client-y"],
+      "email": "tom.maes@example.test"
+    },
+    {
+      "id": "lotte.vermeulen",
+      "name": "Lotte Vermeulen",
+      "team": "team-pay",
+      "role": "Payroll consultant NL",
+      "status": "active",
+      "left_at": null,
+      "client_bindings": ["client-y"],
+      "email": "lotte.vermeulen@example.test"
+    },
+    {
+      "id": "pieter.devos",
+      "name": "Pieter De Vos",
+      "team": "team-pay",
+      "role": "Senior payroll consultant",
+      "status": "left",
+      "left_at": "2026-06-30T17:00:00Z",
+      "client_bindings": ["client-y"],
+      "email": "pieter.devos@example.test"
+    },
+    {
+      "id": "emma.wouters",
+      "name": "Emma Wouters",
+      "team": "team-time",
+      "role": "Team lead Time",
+      "status": "active",
+      "left_at": null,
+      "client_bindings": ["client-x", "client-z"],
+      "email": "emma.wouters@example.test"
+    },
+    {
+      "id": "lucas.jacobs",
+      "name": "Lucas Jacobs",
+      "team": "team-time",
+      "role": "Time consultant",
+      "status": "active",
+      "left_at": null,
+      "client_bindings": ["client-x", "client-z"],
+      "email": "lucas.jacobs@example.test"
+    },
+    {
+      "id": "marc.dupont",
+      "name": "Marc Dupont",
+      "team": "team-hr",
+      "role": "Team lead HR",
+      "status": "active",
+      "left_at": null,
+      "client_bindings": ["client-w"],
+      "email": "marc.dupont@example.test"
+    },
+    {
+      "id": "nora.elamrani",
+      "name": "Nora El Amrani",
+      "team": "team-hr",
+      "role": "HR consultant",
+      "status": "active",
+      "left_at": null,
+      "client_bindings": ["client-w"],
+      "email": "nora.elamrani@example.test"
+    }
+  ]
+}

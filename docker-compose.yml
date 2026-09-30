@@ -21,9 +21,24 @@ services:
     environment:
       PORT: 3737
       DATABASE_URL: postgres://capy:capy@db:5432/capy
+      MAIL_GRAPH_URL: http://mail-mock:4010/v1.0
+      MAIL_GRAPH_TOKEN: ${MAIL_MOCK_TOKEN:-dev-mail-token}
     depends_on:
       db:
         condition: service_healthy
+      mail-mock:
+        condition: service_started
+
+  mail-mock:
+    build:
+      context: ./mocks
+      dockerfile: mail/Dockerfile
+    ports:
+      - "4010:4010"
+    environment:
+      PORT: 4010
+      MAIL_MOCK_TOKEN: ${MAIL_MOCK_TOKEN:-dev-mail-token}
+      MAIL_MOCK_ADMIN_TOKEN: ${MAIL_MOCK_ADMIN_TOKEN:-dev-mail-admin-token}
 
 volumes:
   pgdata:

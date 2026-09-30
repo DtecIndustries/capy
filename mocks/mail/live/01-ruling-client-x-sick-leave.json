@@ -1,0 +1,10 @@
+{
+  "from": "katrien.janssens",
+  "to": ["lucas.jacobs", "tom.maes", "sophie.dubois"],
+  "cc": ["jan.peeters"],
+  "is_reply_to": "mail-006",
+  "references": ["doc-014@2.0", "doc-021"],
+  "importance": "high",
+  "language": "en",
+  "body": "Hi all,\n\nConfirmed: Sophie is right. For Scheldemond the guaranteed salary starts on day one, also for part-timers. Version 2.0 of the sick leave procedure and the Client X addendum are the references; version 1.0 is superseded and should no longer be shared. Lucas, please configure day one with AB-10.\n\nTom, no harm done, but please check the version before linking a procedure.\n\nKatrien"
+}
