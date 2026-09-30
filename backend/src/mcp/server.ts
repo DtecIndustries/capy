@@ -5,6 +5,7 @@ import { getExperts } from '../engines/expertise.js'
 import { getProvenance } from '../engines/provenance.js'
 import { getHealth } from '../engines/health.js'
 import type { CallerIdentity } from '../access/auth.js'
+import { routeQuery } from '../engines/router.js'
 import { assertClientAccess, ScopeError } from '../access/scope.js'
 
 function scopeErrorResponse(err: ScopeError) {
@@ -95,6 +96,81 @@ export function createMcpServer(caller?: CallerIdentity): McpServer {
         content: [{
           type: 'text' as const,
           text: JSON.stringify(result, null, 2),
+        }],
+      }
+    }
+  )
+
+  server.tool(
+    'lookup',
+    'The main entry point. Given a free-text description of a customer question or situation, returns the top experts and top documents for that context, each with a relevance percentage. Use this before trying the other tools.',
+    {
+      query: z.string().describe(
+        'Free-text description, e.g. "customer Scheldemond called about sick leave in the Pay app"'
+      ),
+    },
+    async ({ query }) => {
+      const route = routeQuery(query)
+
+      if (!route.domain_id && !route.app) {
+        return {
+          content: [{
+            type: 'text' as const,
+            text: JSON.stringify({
+              error: 'Could not determine app or domain from query. Try mentioning the app (pay, hr, time) and topic (sick leave, year-end, contracts…).',
+              query,
+            }, null, 2),
+          }],
+        }
+      }
+
+      const client = route.client_id ?? caller?.client_ids[0]
+
+      if (!client) {
+        return {
+          content: [{
+            type: 'text' as const,
+            text: JSON.stringify({
+              error: 'Could not determine client from query and no default client in token.',
+              query,
+            }, null, 2),
+          }],
+        }
+      }
+
+      const domainId = route.domain_id ?? `${route.app}.*`
+
+      const [expertResults, docResults] = await Promise.all([
+        route.domain_id ? getExperts({ app: route.app!, domain: route.domain_id, client }) : Promise.resolve([]),
+        route.domain_id ? getTrustedDocs({ app: route.app!, domain: route.domain_id, client }) : Promise.resolve([]),
+      ])
+
+      const experts = expertResults.slice(0, 3).map(e => ({
+        person_id: e.person_id,
+        name: e.name,
+        relevance_pct: Math.round(e.score * 100),
+        bus_factor_risk: e.bus_factor_risk,
+      }))
+
+      const documents = docResults.slice(0, 5).map(d => ({
+        document_id: d.document_id,
+        title: d.title,
+        verdict: d.verdict,
+        relevance_pct: d.signals.scope_match === 'client-specific' ? 90
+          : d.signals.scope_match === 'generic' ? 70
+          : 40,
+        reasons: d.reasons,
+      }))
+
+      return {
+        content: [{
+          type: 'text' as const,
+          text: JSON.stringify({
+            query,
+            resolved: { app: route.app, domain: domainId, client },
+            experts,
+            documents,
+          }, null, 2),
         }],
       }
     }
