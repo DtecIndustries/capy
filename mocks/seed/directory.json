@@ -28,7 +28,7 @@
       "role": "Payroll consultant",
       "status": "active",
       "left_at": null,
-      "client_bindings": ["client-x", "client-z"],
+      "client_bindings": ["client-x", "client-y", "client-z"],
       "email": "sophie.dubois@example.test"
     },
     {
@@ -48,7 +48,7 @@
       "role": "Junior payroll consultant",
       "status": "active",
       "left_at": null,
-      "client_bindings": ["client-x", "client-z"],
+      "client_bindings": ["client-x", "client-y", "client-z"],
       "email": "anna.claes@example.test"
     },
     {
@@ -88,7 +88,7 @@
       "role": "Team lead Time",
       "status": "active",
       "left_at": null,
-      "client_bindings": ["client-x", "client-z"],
+      "client_bindings": ["client-x", "client-y", "client-z"],
       "email": "emma.wouters@example.test"
     },
     {
@@ -98,7 +98,7 @@
       "role": "Time consultant",
       "status": "active",
       "left_at": null,
-      "client_bindings": ["client-x", "client-z"],
+      "client_bindings": ["client-x", "client-y", "client-z"],
       "email": "lucas.jacobs@example.test"
     },
     {
@@ -108,7 +108,7 @@
       "role": "Team lead HR",
       "status": "active",
       "left_at": null,
-      "client_bindings": ["client-w"],
+      "client_bindings": ["client-w", "client-y"],
       "email": "marc.dupont@example.test"
     },
     {
@@ -118,7 +118,7 @@
       "role": "HR consultant",
       "status": "active",
       "left_at": null,
-      "client_bindings": ["client-w"],
+      "client_bindings": ["client-w", "client-y"],
       "email": "nora.elamrani@example.test"
     }
   ]
