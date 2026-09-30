@@ -7,15 +7,22 @@ import type { ChangeEvent } from './contract.js'
 // Loads the org directory and taxonomy (mocks/seed) into the database. Stands in for
 // Entra ID / the HR directory; safe to run on every start.
 
-interface Taxonomy {
+export interface Claim {
+  id: string
+  question: string
+  // Answer -> phrases that state it.
+  answers: Record<string, string[]>
+}
+
+export interface Taxonomy {
   apps: { id: string; name: string }[]
-  domains: { id: string; app: string; name: string; owner_team: string }[]
+  domains: { id: string; app: string; name: string; owner_team: string; keywords?: string[]; claims?: Claim[] }[]
   domain_links: { from: string; to: string; type: string }[]
 }
 
-interface DirectoryFile {
+export interface DirectoryFile {
   teams: { id: string; name: string; app: string }[]
-  clients: { id: string; name: string; country: string }[]
+  clients: { id: string; name: string; country: string; aliases?: string[] }[]
   people: {
     id: string
     name: string
@@ -29,9 +36,18 @@ interface DirectoryFile {
 
 const defaultSeedDir = join(dirname(fileURLToPath(import.meta.url)), '../../../mocks/seed')
 
-export async function loadSeed(seedDir = process.env.SEED_DIR ?? defaultSeedDir): Promise<ChangeEvent[]> {
-  const taxonomy = JSON.parse(readFileSync(join(seedDir, 'taxonomy.json'), 'utf8')) as Taxonomy
-  const directory = JSON.parse(readFileSync(join(seedDir, 'directory.json'), 'utf8')) as DirectoryFile
+let cached: { taxonomy: Taxonomy; directory: DirectoryFile } | undefined
+
+export function readSeed(seedDir = process.env.SEED_DIR ?? defaultSeedDir) {
+  cached ??= {
+    taxonomy: JSON.parse(readFileSync(join(seedDir, 'taxonomy.json'), 'utf8')) as Taxonomy,
+    directory: JSON.parse(readFileSync(join(seedDir, 'directory.json'), 'utf8')) as DirectoryFile,
+  }
+  return cached
+}
+
+export async function loadSeed(): Promise<ChangeEvent[]> {
+  const { taxonomy, directory } = readSeed()
 
   await sql.begin(async (tx) => {
     for (const a of taxonomy.apps) {

@@ -5,10 +5,10 @@
     { "id": "team-hr", "name": "HR team", "app": "hr" }
   ],
   "clients": [
-    { "id": "client-x", "name": "Scheldemond Logistics NV", "country": "BE" },
-    { "id": "client-y", "name": "Polderveld Retail BV", "country": "NL" },
-    { "id": "client-z", "name": "Ardenne Bakkerijen NV", "country": "BE" },
-    { "id": "client-w", "name": "Atelier Lumière SA", "country": "FR" }
+    { "id": "client-x", "name": "Scheldemond Logistics NV", "country": "BE", "aliases": ["Scheldemond", "Client X"] },
+    { "id": "client-y", "name": "Polderveld Retail BV", "country": "NL", "aliases": ["Polderveld"] },
+    { "id": "client-z", "name": "Ardenne Bakkerijen NV", "country": "BE", "aliases": ["Ardenne"] },
+    { "id": "client-w", "name": "Atelier Lumière SA", "country": "FR", "aliases": ["Atelier Lumière", "Lumière"] }
   ],
   "people": [
     {

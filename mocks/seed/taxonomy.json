@@ -5,13 +5,65 @@
     { "id": "time", "name": "Time" }
   ],
   "domains": [
-    { "id": "pay.sick-leave", "app": "pay", "name": "Sick leave", "owner_team": "team-pay" },
-    { "id": "pay.year-end", "app": "pay", "name": "Year-end", "owner_team": "team-pay" },
-    { "id": "pay.gross-to-net", "app": "pay", "name": "Gross-to-net", "owner_team": "team-pay" },
-    { "id": "time.absence", "app": "time", "name": "Absence registration", "owner_team": "team-time" },
-    { "id": "time.timesheets", "app": "time", "name": "Timesheets", "owner_team": "team-time" },
-    { "id": "hr.onboarding", "app": "hr", "name": "Onboarding", "owner_team": "team-hr" },
-    { "id": "hr.contracts", "app": "hr", "name": "Employment contracts", "owner_team": "team-hr" }
+    {
+      "id": "pay.sick-leave",
+      "app": "pay",
+      "name": "Sick leave",
+      "owner_team": "team-pay",
+      "keywords": ["ziekte", "ziek", "gewaarborgd loon", "loondoorbetaling", "sick", "carensdag", "maladie"],
+      "claims": [
+        {
+          "id": "first-sick-day-paid",
+          "question": "Is the first day of sickness paid?",
+          "answers": {
+            "paid": ["start vanaf de eerste ziektedag", "loopt vanaf de eerste ziektedag", "gewaarborgd loon op de eerste ziektedag", "day 1 onwards", "from day one"],
+            "unpaid": ["eerste ziektedag wordt niet betaald", "unpaid waiting day"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "pay.year-end",
+      "app": "pay",
+      "name": "Year-end",
+      "owner_team": "team-pay",
+      "keywords": ["eindejaar", "year-end", "fiscale fiche", "benefits in kind", "voordelen alle aard", "annual tax form"]
+    },
+    {
+      "id": "pay.gross-to-net",
+      "app": "pay",
+      "name": "Gross-to-net",
+      "owner_team": "team-pay",
+      "keywords": ["bruto-netto", "gross-to-net", "loonheffing", "brut-net"]
+    },
+    {
+      "id": "time.absence",
+      "app": "time",
+      "name": "Absence registration",
+      "owner_team": "team-time",
+      "keywords": ["absence", "afwezigheid"]
+    },
+    {
+      "id": "time.timesheets",
+      "app": "time",
+      "name": "Timesheets",
+      "owner_team": "team-time",
+      "keywords": ["timesheet"]
+    },
+    {
+      "id": "hr.onboarding",
+      "app": "hr",
+      "name": "Onboarding",
+      "owner_team": "team-hr",
+      "keywords": ["onboarding", "accueil"]
+    },
+    {
+      "id": "hr.contracts",
+      "app": "hr",
+      "name": "Employment contracts",
+      "owner_team": "team-hr",
+      "keywords": ["contrat", "contract", "cdd", "arbeidsovereenkomst"]
+    }
   ],
   "domain_links": [
     { "from": "pay.sick-leave", "to": "time.absence", "type": "touches" },

@@ -1,4 +1,4 @@
-export type Verdict = 'trusted' | 'stale' | 'unowned' | 'scope_mismatch' | 'conflict'
+export type Verdict = 'trusted' | 'unverified' | 'stale' | 'unowned' | 'scope_mismatch' | 'conflict'
 export type ScopeMatch = 'client-specific' | 'generic' | 'wrong-client' | 'wrong-country'
 export type Freshness = 'latest' | 'superseded'
 
@@ -8,6 +8,15 @@ export interface TrustSignals {
   owner_active: boolean
   scope_match: ScopeMatch
   consistent_with_siblings: boolean
+  // Set when this document is a copy of another document's superseded version.
+  copy_of: string | null
+}
+
+export interface ConflictInfo {
+  with: string
+  question: string
+  this_says: string
+  other_says: string
 }
 
 export interface TrustResult {
@@ -20,6 +29,8 @@ export interface TrustResult {
   signals: TrustSignals
   reasons: string[]
   excluded: boolean
+  owner: { id: string; name: string; status: string } | null
+  conflicts: ConflictInfo[]
 }
 
 export interface TrustContext {

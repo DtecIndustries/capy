@@ -1,12 +1,13 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { getTrustedDocs } from '../engines/trust.js'
+import { lookup } from '../engines/lookup.js'
 import { getExperts } from '../engines/expertise.js'
+import { getTrustedDocs } from '../engines/trust.js'
 import { getProvenance } from '../engines/provenance.js'
 import { getHealth } from '../engines/health.js'
+import { assertClientAccess, canSeeDocument, ScopeError } from '../access/scope.js'
 import type { CallerIdentity } from '../access/auth.js'
 import { routeQuery } from '../engines/router.js'
-import { assertClientAccess, ScopeError } from '../access/scope.js'
 
 function scopeErrorResponse(err: ScopeError) {
   return {
@@ -17,7 +18,12 @@ function scopeErrorResponse(err: ScopeError) {
   }
 }
 
-export function createMcpServer(caller?: CallerIdentity): McpServer {
+const json = (value: unknown) => ({ content: [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }] })
+const denied = (message: string) => ({ content: [{ type: 'text' as const, text: message }], isError: true })
+
+// The caller comes from the transport's token, never from a tool argument; every tool is
+// limited to the caller's client bindings.
+export function createMcpServer(caller: CallerIdentity): McpServer {
   const server = new McpServer({
     name: 'capy-ledger',
     version: '0.1.0',
@@ -25,7 +31,7 @@ export function createMcpServer(caller?: CallerIdentity): McpServer {
 
   server.tool(
     'trusted_docs',
-    'Returns ranked trustworthy documents for a given app, domain and client, with reasons. Excluded documents are included with their exclusion reason.',
+    'Returns ranked trustworthy documents for a given app, domain and client, with reasons. Excluded documents are included with their exclusion reason. When nothing can be trusted, route_to names who to ask instead.',
     {
       app: z.string().describe('Application id, e.g. "pay", "hr", "time"'),
       domain: z.string().describe('Domain id, e.g. "pay.sick-leave"'),
@@ -33,21 +39,14 @@ export function createMcpServer(caller?: CallerIdentity): McpServer {
     },
     async ({ app, domain, client }) => {
       try { assertClientAccess(caller, client) } catch (e) { return scopeErrorResponse(e as ScopeError) }
-      const results = await getTrustedDocs({ app, domain, client })
-      const trusted = results.filter(r => !r.excluded)
-      const excluded = results.filter(r => r.excluded)
-      return {
-        content: [{
-          type: 'text' as const,
-          text: JSON.stringify({ context: { app, domain, client }, trusted, excluded }, null, 2),
-        }],
-      }
+      const { context, trusted, excluded, route_to } = await lookup({ app, domain, client })
+      return json({ context, trusted, excluded, route_to })
     }
   )
 
   server.tool(
     'who_knows',
-    'Returns people ranked by expertise for a given app, domain and client, each with their evidence rows. Flags bus-factor risk when fewer than two people have evidence.',
+    'Returns people ranked by expertise for a given app, domain and client, each with their evidence rows. Flags bus-factor risk when fewer than two people have client-specific evidence.',
     {
       app: z.string().describe('Application id'),
       domain: z.string().describe('Domain id'),
@@ -55,31 +54,20 @@ export function createMcpServer(caller?: CallerIdentity): McpServer {
     },
     async ({ app, domain, client }) => {
       try { assertClientAccess(caller, client) } catch (e) { return scopeErrorResponse(e as ScopeError) }
-      const experts = await getExperts({ app, domain, client })
-      const bus_factor_risk = experts.some(e => e.bus_factor_risk)
-      return {
-        content: [{
-          type: 'text' as const,
-          text: JSON.stringify({ context: { app, domain, client }, experts, bus_factor_risk }, null, 2),
-        }],
-      }
+      const { context, experts, bus_factor_risk } = await lookup({ app, domain, client })
+      return json({ context, experts, bus_factor_risk })
     }
   )
 
   server.tool(
     'get_provenance',
-    'Returns the full ledger history for a document: every event (created, edited, approved, superseded…) with actor, timestamp and payload.',
+    'Returns the full ledger history for a document: every event (created, edited, approved, superseded, conflicts, mails that link to it) with actor, time and payload.',
     {
       document_id: z.string().describe('Document id, e.g. "doc-014"'),
     },
     async ({ document_id }) => {
-      const result = await getProvenance(document_id)
-      return {
-        content: [{
-          type: 'text' as const,
-          text: JSON.stringify(result, null, 2),
-        }],
-      }
+      if (!(await canSeeDocument(caller, document_id))) return denied(`Document '${document_id}' not found.`)
+      return json(await getProvenance(document_id))
     }
   )
 
@@ -92,12 +80,11 @@ export function createMcpServer(caller?: CallerIdentity): McpServer {
     },
     async ({ app, domain }) => {
       const result = await getHealth(app, domain)
-      return {
-        content: [{
-          type: 'text' as const,
-          text: JSON.stringify(result, null, 2),
-        }],
+      const findings = []
+      for (const f of result.findings) {
+        if (!/^doc-/.test(f.subject_id) || (await canSeeDocument(caller, f.subject_id.split('@')[0]))) findings.push(f)
       }
+      return json({ ...result, findings })
     }
   )
 
@@ -138,6 +125,9 @@ export function createMcpServer(caller?: CallerIdentity): McpServer {
         }
       }
 
+      // A client named in the query must still be one the caller is bound to.
+      try { assertClientAccess(caller, client) } catch (e) { return scopeErrorResponse(e as ScopeError) }
+
       const domainId = route.domain_id ?? `${route.app}.*`
 
       const [expertResults, docResults] = await Promise.all([
@@ -161,7 +151,7 @@ export function createMcpServer(caller?: CallerIdentity): McpServer {
       }))
 
       const verdictEmoji: Record<string, string> = {
-        trusted: '✅', conflict: '⚠️', unowned: '👻', stale: '🕸️', scope_mismatch: '🌍',
+        trusted: '✅', unverified: '🤨', conflict: '⚠️', unowned: '👻', stale: '🕸️', scope_mismatch: '🌍',
       }
 
       const expertLines = experts.length > 0

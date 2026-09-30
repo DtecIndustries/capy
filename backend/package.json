@@ -6,9 +6,11 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "test": "tsx --test test/*.test.ts",
     "gen-tokens": "tsx src/access/generate-dev-tokens.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.130.0",
     "@modelcontextprotocol/sdk": "^1.31.0",
     "fastify": "^5.3.3",
     "jose": "^6.2.12",
@@ -16,6 +18,8 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@electric-sql/pglite-socket": "^0.2.11",
     "@types/node": "^22.15.21",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"

@@ -119,6 +119,17 @@ ALTER TABLE person ADD COLUMN IF NOT EXISTS email TEXT UNIQUE;
 ALTER TABLE document ADD COLUMN IF NOT EXISTS owner_id TEXT REFERENCES person(id);
 ALTER TABLE document ADD COLUMN IF NOT EXISTS country_hint TEXT;
 
+-- What a document version states on a domain's known questions (see taxonomy claims);
+-- two current, approved documents with different answers are a conflict.
+CREATE TABLE IF NOT EXISTS document_claim (
+  document_version_id TEXT NOT NULL REFERENCES document_version(id),
+  domain_id           TEXT NOT NULL REFERENCES domain(id),
+  claim_id            TEXT NOT NULL,
+  answer              TEXT NOT NULL,
+  evidence            TEXT NOT NULL,
+  PRIMARY KEY (document_version_id, claim_id)
+);
+
 CREATE TABLE IF NOT EXISTS connector_state (
   id         TEXT PRIMARY KEY,
   delta_link TEXT NOT NULL,

@@ -2,10 +2,13 @@ import { sql } from '../db/client.js'
 import type { ChangeEvent } from './contract.js'
 import { personByEmail, type GraphClient } from './graph.js'
 import { record } from './record.js'
+import { tagMail } from './tagging.js'
 
 // Mail connector: walks every user's Sent Items with a delta query, so each mail is seen
-// exactly once (from the sender's side). Only metadata is kept; the body is never stored.
-// A reply counts as an answered question; SharePoint links in a mail become document references.
+// exactly once (from the sender's side). All new mails are processed oldest first, so a
+// reply can inherit its thread's topic. Only metadata and tags are kept; the body is read
+// for tagging and never stored. A reply counts as an answered question; SharePoint links
+// in a mail become document references.
 
 interface Message {
   id: string
@@ -13,6 +16,7 @@ interface Message {
   sentDateTime: string
   subject: string
   hasAttachments: boolean
+  body?: { content: string }
   from: { emailAddress: { address: string } }
   toRecipients: { emailAddress: { address: string } }[]
   internetMessageHeaders?: { name: string; value: string }[]
@@ -24,19 +28,23 @@ interface Attachment {
 }
 
 export async function syncMail(mail: GraphClient, sharepoint: GraphClient | undefined): Promise<number> {
-  const users = await mail.get<{ value: { id: string; mail: string }[] }>('/users')
-  let recorded = 0
+  const users = await mail.get<{ value: { id: string }[] }>('/users')
+  const collected: { userId: string; message: Message }[] = []
+  const commits: (() => Promise<void>)[] = []
   for (const user of users.value) {
-    const stateId = `mail:${user.id}:sentitems`
-    await mail.delta<Message>(stateId, `/users/${user.id}/mailFolders/sentitems/messages/delta`, async (messages) => {
-      const changes: ChangeEvent[] = []
-      for (const message of messages) {
-        const change = await syncMessage(mail, sharepoint, user.id, message)
-        if (change) changes.push(change)
-      }
-      recorded += await record(changes)
-    })
+    const delta = await mail.collectDelta<Message>(`mail:${user.id}:sentitems`, `/users/${user.id}/mailFolders/sentitems/messages/delta`)
+    collected.push(...delta.items.map((message) => ({ userId: user.id, message })))
+    commits.push(delta.commit)
   }
+  collected.sort((a, b) => a.message.sentDateTime.localeCompare(b.message.sentDateTime))
+
+  const changes: ChangeEvent[] = []
+  for (const { userId, message } of collected) {
+    const change = await syncMessage(mail, sharepoint, userId, message)
+    if (change) changes.push(change)
+  }
+  const recorded = await record(changes)
+  for (const commit of commits) await commit()
   return recorded
 }
 
@@ -48,15 +56,18 @@ async function syncMessage(
 ): Promise<ChangeEvent | undefined> {
   const from = await personByEmail(message.from.emailAddress.address)
   if (!from) return undefined
+  const [known] = await sql`SELECT 1 FROM mail_meta WHERE id = ${message.id}`
+  if (known) return undefined
 
   const references = message.hasAttachments && sharepoint ? await documentReferences(mail, sharepoint, userId, message.id) : []
-  const inserted = await sql`
-    INSERT INTO mail_meta (id, thread_id, from_id, sent_at, references_doc_id)
-    VALUES (${message.id}, ${message.conversationId}, ${from}, ${message.sentDateTime}, ${references[0]?.documentId ?? null})
+  const tags = await tagsFor(message, references.map((r) => r.documentId))
+
+  await sql`
+    INSERT INTO mail_meta (id, thread_id, from_id, sent_at, domain_id, client_id, references_doc_id)
+    VALUES (${message.id}, ${message.conversationId}, ${from}, ${message.sentDateTime},
+            ${tags.domain_id}, ${tags.client_id}, ${references[0]?.documentId ?? null})
     ON CONFLICT (id) DO NOTHING
-    RETURNING id
   `
-  if (inserted.length === 0) return undefined
 
   const header = (name: string) =>
     message.internetMessageHeaders?.find((h) => h.name.toLowerCase() === name.toLowerCase())?.value
@@ -72,12 +83,35 @@ async function syncMessage(
     actor: from,
     timestamp: message.sentDateTime,
     location: `thread ${message.conversationId}`,
+    domain_id: tags.domain_id,
+    client_id: tags.client_id,
     details: {
       thread_id: message.conversationId,
       in_reply_to: inReplyTo,
       to: to.filter(Boolean),
       references: references.map((r) => r.ref),
+      ...(tags.domain_id && { domains: [tags.domain_id] }),
     },
+  }
+}
+
+// The mail's own words first, then the documents it links to, then the rest of its thread.
+async function tagsFor(message: Message, documentIds: string[]): Promise<{ domain_id: string | null; client_id: string | null }> {
+  const own = await tagMail({ subject: message.subject, body: message.body?.content ?? '' })
+  const [linked] = documentIds.length
+    ? await sql<{ domain_id: string; client_id: string | null }[]>`
+        SELECT da.domain_id, da.client_id FROM document d
+        JOIN document_area da ON da.document_version_id = d.current_version_id
+        WHERE d.id = ANY(${documentIds}) ORDER BY da.confidence DESC LIMIT 1`
+    : []
+  const [thread] = await sql<{ domain_id: string | null; client_id: string | null }[]>`
+    SELECT domain_id, client_id FROM mail_meta
+    WHERE thread_id = ${message.conversationId} AND domain_id IS NOT NULL
+    ORDER BY sent_at LIMIT 1
+  `
+  return {
+    domain_id: own.domain_id ?? linked?.domain_id ?? thread?.domain_id ?? null,
+    client_id: own.client_id ?? linked?.client_id ?? thread?.client_id ?? null,
   }
 }
 

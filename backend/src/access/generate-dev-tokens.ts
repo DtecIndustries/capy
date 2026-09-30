@@ -1,32 +1,19 @@
+import { readSeed } from '../ingestion/seed.js'
 import { signToken } from './auth.js'
 
-// These match the personas in mocks/seed/directory.json
-const DEV_PERSONAS = [
-  {
-    person_id: 'sophie.dubois',
-    name: 'Sophie Dubois',
-    team_id: 'team-pay',
-    client_ids: ['client-x'],
-  },
-  {
-    person_id: 'anna.claes',
-    name: 'Anna Claes',
-    team_id: 'team-pay',
-    client_ids: ['client-x'],
-  },
-  {
-    person_id: 'lead.pay',
-    name: 'Pay Team Lead',
-    team_id: 'team-pay',
-    client_ids: ['client-x'],
-  },
-]
+// Prints a token for every active person in mocks/seed/directory.json.
+const { directory } = readSeed()
 
 console.log('\nDev tokens — paste into claude_desktop_config.json or .env:\n')
 
-for (const persona of DEV_PERSONAS) {
-  const token = await signToken(persona)
-  console.log(`# ${persona.name} (${persona.person_id})`)
+for (const person of directory.people.filter((p) => p.status === 'active')) {
+  const token = await signToken({
+    person_id: person.id,
+    name: person.name,
+    team_id: person.team,
+    client_ids: person.client_bindings,
+  })
+  console.log(`# ${person.name} (${person.id}, ${person.team}, clients: ${person.client_bindings.join(', ')})`)
   console.log(`CAPY_TOKEN=${token}`)
   console.log()
 }

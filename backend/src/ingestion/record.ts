@@ -8,6 +8,8 @@ function toLedger(change: ChangeEvent): EventInput[] {
   const base = {
     actor_id: change.actor,
     country: change.country ?? undefined,
+    domain_id: change.domain_id ?? undefined,
+    client_id: change.client_id ?? undefined,
     payload: {
       occurred_at: change.timestamp,
       source_type: change.source_type,

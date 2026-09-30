@@ -3,10 +3,12 @@ import { sql } from '../db/client.js'
 import type { ChangeEvent } from './contract.js'
 import { personByEmail, type GraphClient } from './graph.js'
 import { record } from './record.js'
+import { extractClaims, tagDocument, type Tag } from './tagging.js'
 
 // SharePoint connector: walks every document library with a delta query and turns new
 // versions, approvals and owner changes into change events. Delta only says *that* a file
 // changed, so each changed file's version history is compared with what we already stored.
+// New versions are tagged (domain, client, country) and their claims extracted.
 
 interface Identity {
   user?: { email?: string | null }
@@ -49,6 +51,22 @@ export async function syncSharePoint(client: GraphClient): Promise<number> {
   return recorded
 }
 
+async function tagsOf(versionId: string): Promise<Tag[]> {
+  return sql<Tag[]>`
+    SELECT domain_id, client_id, country, confidence, tagged_by FROM document_area
+    WHERE document_version_id = ${versionId} ORDER BY confidence DESC, domain_id
+  `
+}
+
+// The event carries the primary tag; all tagged domains go in the payload.
+function tagFields(tags: Tag[]) {
+  return {
+    domain_id: tags[0]?.domain_id ?? null,
+    client_id: tags[0]?.client_id ?? null,
+    domains: tags.map((t) => t.domain_id),
+  }
+}
+
 async function syncItem(client: GraphClient, driveName: string, item: DriveItem): Promise<ChangeEvent[]> {
   const itemPath = `/drives/${item.parentReference.driveId}/items/${item.id}`
   const listItem = await client.get<ListItem>(`${itemPath}/listItem`)
@@ -83,12 +101,28 @@ async function syncItem(client: GraphClient, driveName: string, item: DriveItem)
     const pointer = `${item.webUrl}&version=${version.id}`
 
     if (!storedApproval.has(versionId)) {
-      const content = await client.get<string>(`${itemPath}/versions/${version.id}/content`)
-      const contentHash = `sha256:${createHash('sha256').update(content.replace(/\r\n/g, '\n')).digest('hex')}`
+      const content = (await client.get<string>(`${itemPath}/versions/${version.id}/content`)).replace(/\r\n/g, '\n')
+      const contentHash = `sha256:${createHash('sha256').update(content).digest('hex')}`
       await sql`
         INSERT INTO document_version (id, document_id, version, author_id, modified_by, modified_at, content_hash, pointer)
         VALUES (${versionId}, ${item.id}, ${version.id}, ${createdBy}, ${modifiedBy}, ${version.lastModifiedDateTime}, ${contentHash}, ${pointer})
       `
+      const tags = await tagDocument({ title: listItem.fields.Title, location, content, countryHint: country })
+      for (const t of tags) {
+        await sql`
+          INSERT INTO document_area (document_version_id, domain_id, client_id, country, confidence, tagged_by)
+          VALUES (${versionId}, ${t.domain_id}, ${t.client_id}, ${t.country}, ${t.confidence}, ${t.tagged_by})
+          ON CONFLICT DO NOTHING
+        `
+      }
+      for (const c of extractClaims(tags.map((t) => t.domain_id), content)) {
+        await sql`
+          INSERT INTO document_claim (document_version_id, domain_id, claim_id, answer, evidence)
+          VALUES (${versionId}, ${c.domain_id}, ${c.claim_id}, ${c.answer}, ${c.evidence})
+          ON CONFLICT DO NOTHING
+        `
+      }
+      const { domains, ...primary } = tagFields(tags)
       changes.push({
         source_type: 'sharepoint',
         source_id: item.id,
@@ -100,7 +134,11 @@ async function syncItem(client: GraphClient, driveName: string, item: DriveItem)
         pointer,
         raw_ref: versionId,
         country,
-        details: i === 0 ? { title: listItem.fields.Title } : { from_version: versions[i - 1].id, to_version: version.id },
+        ...primary,
+        details: {
+          domains,
+          ...(i === 0 ? { title: listItem.fields.Title } : { from_version: versions[i - 1].id, to_version: version.id }),
+        },
       })
     }
 
@@ -114,6 +152,7 @@ async function syncItem(client: GraphClient, driveName: string, item: DriveItem)
         ON CONFLICT (document_version_id) DO UPDATE SET status = EXCLUDED.status, by_person_id = EXCLUDED.by_person_id, at = EXCLUDED.at
       `
       if (status === 'approved') {
+        const { domains, ...primary } = tagFields(await tagsOf(versionId))
         changes.push({
           source_type: 'sharepoint',
           source_id: item.id,
@@ -124,6 +163,8 @@ async function syncItem(client: GraphClient, driveName: string, item: DriveItem)
           pointer,
           raw_ref: versionId,
           country,
+          ...primary,
+          details: { domains },
         })
       }
     }
@@ -133,6 +174,7 @@ async function syncItem(client: GraphClient, driveName: string, item: DriveItem)
 
   if (existing && existing.owner_id !== (owner ?? null)) {
     const changedBy = await personByEmail(listItem.lastModifiedBy.user?.email)
+    const { domains, ...primary } = tagFields(await tagsOf(latest))
     changes.push({
       source_type: 'sharepoint',
       source_id: item.id,
@@ -141,7 +183,8 @@ async function syncItem(client: GraphClient, driveName: string, item: DriveItem)
       timestamp: listItem.lastModifiedDateTime,
       location,
       country,
-      details: { from: existing.owner_id, to: owner ?? null },
+      ...primary,
+      details: { domains, from: existing.owner_id, to: owner ?? null },
     })
   }
   return changes

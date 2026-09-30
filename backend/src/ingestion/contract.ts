@@ -27,5 +27,8 @@ export interface ChangeEvent {
   // Versioned reference, e.g. "doc-014@2.0".
   raw_ref?: string
   country?: string | null
+  // Primary tags; every domain the item touches is listed in details.domains.
+  domain_id?: string | null
+  client_id?: string | null
   details?: Record<string, unknown>
 }
